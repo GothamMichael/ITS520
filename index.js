@@ -1,12 +1,31 @@
+let modelInputCount = null;
+
+async function updateExpectedInput() {
+  const modelFile = document.getElementById("modelSelect").value;
+  const infoDiv = document.getElementById("modelInfo");
+  infoDiv.innerHTML = `<i>Loading model info for ${modelFile}...</i>`;
+
+  try {
+    const session = await ort.InferenceSession.create(modelFile + "?v=" + Date.now());
+    const inputName = session.inputNames[0];
+    const expectedShape = session.inputMetadata[inputName].dimensions;
+    const expectedLen = expectedShape[1] || expectedShape[0] || 0;
+
+    modelInputCount = expectedLen;
+    infoDiv.innerHTML = `<b>Expected number of input values:</b> ${expectedLen}`;
+  } catch (err) {
+    modelInputCount = null;
+    infoDiv.innerHTML = `<span style="color:red">⚠️ Couldn't load model info. ${err.message}</span>`;
+  }
+}
+
 async function runModel() {
   const modelFile = document.getElementById("modelSelect").value;
   const rawInput = document.getElementById("inputValues").value;
   const outputDiv = document.getElementById("outputArea");
 
-  // Show loading message
   outputDiv.innerHTML = `<i>Loading model: ${modelFile} ...</i>`;
 
-  // Parse inputs
   const inputs = rawInput
     .split(",")
     .map(v => parseFloat(v.trim()))
@@ -18,29 +37,42 @@ async function runModel() {
   }
 
   try {
-    // Load ONNX model
     const session = await ort.InferenceSession.create(modelFile + "?v=" + Date.now());
-
-    // Determine model input name dynamically
     const inputName = session.inputNames[0];
-    const tensor = new ort.Tensor("float32", new Float32Array(inputs), [1, inputs.length]);
+    const expectedShape = session.inputMetadata[inputName].dimensions;
+    const expectedLen = expectedShape[1] || inputs.length;
 
-    // Run inference
+    let adjustedInputs = [...inputs];
+
+    if (inputs.length < expectedLen) {
+      while (adjustedInputs.length < expectedLen) adjustedInputs.push(0);
+    } else if (inputs.length > expectedLen) {
+      adjustedInputs = adjustedInputs.slice(0, expectedLen);
+    }
+
+    const tensor = new ort.Tensor("float32", new Float32Array(adjustedInputs), [1, expectedLen]);
     const results = await session.run({ [inputName]: tensor });
     const outputName = session.outputNames[0];
     const outputData = results[outputName].data;
 
-    // Render nicely
-    let html = `<b>✅ Model ran successfully!</b><br><br>`;
-    html += `<b>Output tensor (${outputData.length} values):</b><br><br>`;
-    html += `<table>`;
+    let html = `<b>✅ Model ran successfully!</b><br>`;
+    html += `<b>Expected input length:</b> ${expectedLen}<br>`;
+    html += `<b>Provided:</b> ${inputs.length} → Adjusted to match<br><br>`;
+    html += `<b>Output tensor (${outputData.length} values):</b><br><br><table>`;
     for (let i = 0; i < outputData.length; i++) {
       html += `<tr><td>Output[${i}]</td><td>${outputData[i].toFixed(4)}</td></tr>`;
     }
     html += `</table>`;
     outputDiv.innerHTML = html;
+
   } catch (err) {
     console.error(err);
     outputDiv.innerHTML = `<span style="color:red">❌ Error running model:<br>${err.message}</span>`;
   }
 }
+
+// Load expected input count when model is changed
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("modelSelect").addEventListener("change", updateExpectedInput);
+  updateExpectedInput(); // run once on page load
+});
