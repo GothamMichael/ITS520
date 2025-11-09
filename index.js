@@ -1,8 +1,18 @@
 let modelInputCount = null;
 
+const modelInputSizes = {
+  "EnergyRegressionModel_LinRegNet.onnx": 9,
+  "EnergyRegressionModelMLP.onnx": 9,
+  "EnergyRegressionModelDL.onnx": 9,
+  "EnergyRegressionModelLPNL.onnx": 9,
+  "DigitsClassificationDL.onnx": 64,
+  "DigitsClassificationMLP.onnx": 64
+};
+
 async function updateExpectedInput() {
   const modelFile = document.getElementById("modelSelect").value;
   const infoDiv = document.getElementById("modelInfo");
+  const expectedLen = modelInputSizes[modelFile] || 0;
   infoDiv.innerHTML = `<i>Loading model info for ${modelFile}...</i>`;
 
   try {
