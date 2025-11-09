@@ -4,19 +4,64 @@
   <meta charset="UTF-8">
   <title>My ONNX Model Runner</title>
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
-  <script src="index.js"></script>
+  <script src="index.js" defer></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 30px; background: #f6f6f6; }
-    h1 { text-align: center; color: #2a4d69; }
-    select, input, button { margin: 5px; }
-    .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
-    table, td { border: 1px solid #ddd; border-collapse: collapse; padding: 4px 8px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f8fa;
+      margin: 0;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      color: #2a4d69;
+    }
+    .container {
+      background: white;
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    select, input, button {
+      margin: 6px 0;
+      padding: 6px;
+      font-size: 14px;
+    }
+    button {
+      background-color: #2a4d69;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d3557;
+    }
+    #outputArea {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f4f8;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      white-space: pre-wrap;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table td {
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+    }
   </style>
 </head>
 <body>
   <h1>Run My ONNX Models in Browser</h1>
   <div class="container">
-    <label for="modelSelect"><b>Select Model:</b></label>
+    <label><b>Select Model:</b></label><br>
     <select id="modelSelect">
       <option value="EnergyRegressionModel_LinRegNet.onnx">EnergyRegressionModel_LinRegNet</option>
       <option value="EnergyRegressionModelMLP.onnx">EnergyRegressionModelMLP</option>
@@ -27,10 +72,12 @@
     </select>
     <hr>
 
-    <h3>Input Values (comma separated):</h3>
+    <label><b>Input Values (comma-separated):</b></label><br>
     <input id="inputValues" type="text" value="0.5, 0.7, 0.2" size="50" />
-    <br>
+    <br><br>
     <button onclick="runModel()">Run Model</button>
-    <hr>
 
-    <h3
+    <div id="outputArea">Waiting for model output...</div>
+  </div>
+</body>
+</html>
