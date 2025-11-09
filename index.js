@@ -12,21 +12,9 @@ const modelInputSizes = {
 async function updateExpectedInput() {
   const modelFile = document.getElementById("modelSelect").value;
   const infoDiv = document.getElementById("modelInfo");
-  const expectedLen = modelInputSizes[modelFile] || 0;
-  infoDiv.innerHTML = `<i>Loading model info for ${modelFile}...</i>`;
 
-  try {
-    const session = await ort.InferenceSession.create(modelFile + "?v=" + Date.now());
-    const inputName = session.inputNames[0];
-    const expectedShape = session.inputMetadata[inputName].dimensions;
-    const expectedLen = expectedShape[1] || expectedShape[0] || 0;
-
-    modelInputCount = expectedLen;
-    infoDiv.innerHTML = `<b>Expected number of input values:</b> ${expectedLen}`;
-  } catch (err) {
-    modelInputCount = null;
-    infoDiv.innerHTML = `<span style="color:red">⚠️ Couldn't load model info. ${err.message}</span>`;
-  }
+  modelInputCount = modelInputSizes[modelFile] || 0;
+  infoDiv.innerHTML = `<b>Expected number of input values:</b> ${modelInputCount}`;
 }
 
 async function runModel() {
@@ -46,20 +34,18 @@ async function runModel() {
     return;
   }
 
+  const expectedLen = modelInputCount || inputs.length;
+
+  let adjustedInputs = [...inputs];
+  if (inputs.length < expectedLen) {
+    while (adjustedInputs.length < expectedLen) adjustedInputs.push(0);
+  } else if (inputs.length > expectedLen) {
+    adjustedInputs = adjustedInputs.slice(0, expectedLen);
+  }
+
   try {
     const session = await ort.InferenceSession.create(modelFile + "?v=" + Date.now());
     const inputName = session.inputNames[0];
-    const expectedShape = session.inputMetadata[inputName].dimensions;
-    const expectedLen = expectedShape[1] || inputs.length;
-
-    let adjustedInputs = [...inputs];
-
-    if (inputs.length < expectedLen) {
-      while (adjustedInputs.length < expectedLen) adjustedInputs.push(0);
-    } else if (inputs.length > expectedLen) {
-      adjustedInputs = adjustedInputs.slice(0, expectedLen);
-    }
-
     const tensor = new ort.Tensor("float32", new Float32Array(adjustedInputs), [1, expectedLen]);
     const results = await session.run({ [inputName]: tensor });
     const outputName = session.outputNames[0];
