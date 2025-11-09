@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My ONNX Model Runner</title>
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+  <script src="index.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f6f6f6; }
+    h1 { text-align: center; color: #2a4d69; }
+    select, input, button { margin: 5px; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    table, td { border: 1px solid #ddd; border-collapse: collapse; padding: 4px 8px; }
+  </style>
+</head>
+<body>
+  <h1>Run My ONNX Models in Browser</h1>
+  <div class="container">
+    <label for="modelSelect"><b>Select Model:</b></label>
+    <select id="modelSelect">
+      <option value="EnergyRegressionModel_LinRegNet.onnx">EnergyRegressionModel_LinRegNet</option>
+      <option value="EnergyRegressionModelMLP.onnx">EnergyRegressionModelMLP</option>
+      <option value="EnergyRegressionModelDL.onnx">EnergyRegressionModelDL</option>
+      <option value="EnergyRegressionModelLPNL.onnx">EnergyRegressionModelLPNL</option>
+      <option value="DigitsClassificationDL.onnx">DigitsClassificationDL</option>
+      <option value="DigitsClassificationMLP.onnx">DigitsClassificationMLP</option>
+    </select>
+    <hr>
+
+    <h3>Input Values (comma separated):</h3>
+    <input id="inputValues" type="text" value="0.5, 0.7, 0.2" size="50" />
+    <br>
+    <button onclick="runModel()">Run Model</button>
+    <hr>
+
+    <h3
