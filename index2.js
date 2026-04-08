@@ -1,40 +1,55 @@
 async function runModel() {
     const outputArea = document.getElementById('outputArea');
-    outputArea.innerHTML = "Fetching model files (this may take a moment)...";
+    outputArea.innerHTML = "Fetching model files...";
 
     try {
-        // 1. Fetch the .onnx structure
-        const onnxResponse = await fetch('./spam_dl_model.onnx');
-        const onnxBuffer = await onnxResponse.arrayBuffer();
+        // 1. Fetch files with cache busting
+        const timestamp = new Date().getTime();
+        const [onnxRes, dataRes] = await Promise.all([
+            fetch(`./spam_dl_model.onnx?v=${timestamp}`),
+            fetch(`./spam_dl_model.onnx.data?v=${timestamp}`)
+        ]);
 
-        // 2. Fetch the .data weights
-        const dataResponse = await fetch('./spam_dl_model.onnx.data');
-        const dataBuffer = await dataResponse.arrayBuffer();
+        if (!onnxRes.ok || !dataRes.ok) {
+            throw new Error("Could not find the model files on the server.");
+        }
 
-        // 3. Create the session with external data linked
-        // We provide the weights as a Uint8Array in the 'externalData' object
-        const session = await ort.InferenceSession.create(onnxBuffer, {
+        const onnxBuffer = await onnxRes.arrayBuffer();
+        const dataBuffer = await dataRes.arrayBuffer();
+
+        // 2. Configure Session
+        // Note: 'externalData' MUST match the 'path' the .onnx file is looking for.
+        const sessionOptions = {
+            executionProviders: ['wasm'], 
             externalData: [
                 {
                     data: new Uint8Array(dataBuffer),
-                    path: 'spam_dl_model.onnx.data' // This must match the name in the error
+                    path: 'spam_dl_model.onnx.data' 
                 }
             ]
-        });
+        };
 
-        outputArea.innerHTML = "Processing inference...";
+        // 3. Create Session
+        // We pass the model buffer first, then the options object
+        const session = await ort.InferenceSession.create(onnxBuffer, sessionOptions);
 
-        // 4. Gather Inputs (Matching your 4-feature vector)
-        const numWords = parseFloat(document.getElementById('num_words').value) || 0;
-        const numLinks = parseFloat(document.getElementById('num_links').value) || 0;
-        const exclamation = parseFloat(document.getElementById('exclamation_marks').value) || 0;
-        const specialChars = parseFloat(document.getElementById('special_chars').value) || 0;
+        outputArea.innerHTML = "Running inference...";
 
-        const inputData = new Float32Array([numWords, numLinks, exclamation, specialChars]);
-        const inputTensor = new ort.Tensor('float32', inputData, [1, 4]);
+        // 4. Inputs
+        const features = [
+            parseFloat(document.getElementById('num_words').value) || 0,
+            parseFloat(document.getElementById('num_links').value) || 0,
+            parseFloat(document.getElementById('exclamation_marks').value) || 0,
+            parseFloat(document.getElementById('special_chars').value) || 0
+        ];
 
-        // 5. Run
+        const inputTensor = new ort.Tensor('float32', new Float32Array(features), [1, 4]);
+
+        // 5. Execute
+        // Ensure "input" matches your input_names=['input'] from the Python script
         const results = await session.run({ "input": inputTensor });
+        
+        // Ensure "output" matches your output_names=['output']
         const prediction = results.output.data[0];
 
         outputArea.innerHTML = prediction > 0.5 
@@ -43,6 +58,6 @@ async function runModel() {
 
     } catch (e) {
         outputArea.innerHTML = `<span style="color: orange;">Error: ${e.message}</span>`;
-        console.error("Manual Load Error:", e);
+        console.error("Critical Failure:", e);
     }
 }
