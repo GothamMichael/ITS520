@@ -2,124 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Spam Detection Deep Learning Model</title>
+  <title>Spam Classifier (PNW Project)</title>
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
   <script src="index2.js" defer></script>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f7f9;
-      margin: 0;
-      padding: 40px;
-    }
-    h1 {
-      text-align: center;
-      color: #1a3a5f;
-    }
-    .container {
-      background: white;
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-    .input-group {
-      margin-bottom: 15px;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-      color: #333;
-      font-size: 14px;
-    }
-    input[type="number"], input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #d1d9e0;
-      border-radius: 6px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-    input:focus {
-      outline: none;
-      border-color: #2a4d69;
-      box-shadow: 0 0 0 2px rgba(42, 77, 105, 0.1);
-    }
-    button {
-      background-color: #2a4d69;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 20px;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background-color: #1d3557;
-    }
-    #outputArea {
-      margin-top: 25px;
-      padding: 20px;
-      background: #eef2f7;
-      border-radius: 8px;
-      font-weight: bold;
-      text-align: center;
-      color: #2a4d69;
-      min-height: 24px;
-    }
-    .grid-inputs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; padding: 40px; }
+    .container { background: white; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .input-group { margin-bottom: 15px; }
+    label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 13px; color: #555; }
+    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    button { background: #2a4d69; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    button:hover { background: #1d3557; }
+    #outputArea { margin-top: 20px; padding: 15px; text-align: center; border-radius: 8px; background: #f8f9fa; min-height: 50px; border: 1px solid #eee; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
   </style>
 </head>
 <body>
 
-  <h1>Spam Classifier (DL Model)</h1>
-
   <div class="container">
-    <div class="input-group">
-      <label for="email_text">Email Body Text</label>
-      <input id="email_text" type="text" placeholder="e.g. Congratulations! You won a prize...">
-    </div>
-
-    <div class="grid-inputs">
+    <h2 style="text-align:center; color:#2a4d69;">Spam Detection DL</h2>
+    
+    <div class="grid">
       <div class="input-group">
-        <label for="num_words">Word Count</label>
+        <label>Word Count</label>
         <input id="num_words" type="number" value="0">
       </div>
       <div class="input-group">
-        <label for="num_links">Links Count</label>
+        <label>Links Count</label>
         <input id="num_links" type="number" value="0">
       </div>
       <div class="input-group">
-        <label for="exclamation_marks">Exclamation Marks</label>
+        <label>Exclamation Marks</label>
         <input id="exclamation_marks" type="number" value="0">
       </div>
       <div class="input-group">
-        <label for="special_chars">Special Characters</label>
+        <label>Special Characters</label>
         <input id="special_chars" type="number" value="0">
       </div>
     </div>
 
-    <input type="hidden" id="modelSelect" value="spam_dl_model.onnx">
-
     <button onclick="runModel()">Predict Category</button>
-
-    <div id="outputArea">Waiting for inputs...</div>
+    <div id="outputArea">Ready for analysis...</div>
   </div>
-
-  <script>
-    // Note: Update your runModel function in index.js to 
-    // gather data using: document.getElementById('num_words').value, etc.
-  </script>
 
 </body>
 </html>
