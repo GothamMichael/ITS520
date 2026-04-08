@@ -2,47 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Spam Classifier (PNW Project)</title>
+  <title>Deep Learning Spam Classifier</title>
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
   <script src="index2.js" defer></script>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; padding: 40px; }
-    .container { background: white; max-width: 500px; margin: auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-    .input-group { margin-bottom: 15px; }
-    label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 13px; color: #555; }
-    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    button { background: #2a4d69; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; padding: 20px; }
+    .container { background: white; max-width: 700px; margin: auto; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    h2 { color: #2a4d69; text-align: center; margin-top: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .input-group { display: flex; flex-direction: column; }
+    label { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 4px; }
+    input { padding: 8px; border: 1px solid #ced4da; border-radius: 4px; }
+    button { background: #2a4d69; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
     button:hover { background: #1d3557; }
-    #outputArea { margin-top: 20px; padding: 15px; text-align: center; border-radius: 8px; background: #f8f9fa; min-height: 50px; border: 1px solid #eee; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    #outputArea { margin-top: 20px; padding: 20px; text-align: center; border-radius: 8px; background: #fff; border: 2px dashed #dee2e6; min-height: 60px; font-size: 18px; }
+    .section-title { grid-column: 1 / -1; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 10px; color: #6c757d; font-size: 14px; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h2 style="text-align:center; color:#2a4d69;">Spam Detection DL</h2>
+    <h2>Spam Detection AI</h2>
     
     <div class="grid">
-      <div class="input-group">
-        <label>Word Count</label>
-        <input id="num_words" type="number" value="0">
-      </div>
-      <div class="input-group">
-        <label>Links Count</label>
-        <input id="num_links" type="number" value="0">
-      </div>
-      <div class="input-group">
-        <label>Exclamation Marks</label>
-        <input id="exclamation_marks" type="number" value="0">
-      </div>
-      <div class="input-group">
-        <label>Special Characters</label>
-        <input id="special_chars" type="number" value="0">
-      </div>
+      <div class="section-title">Content Metrics</div>
+      <div class="input-group"><label>Word Count</label><input id="num_words" type="number" value="50"></div>
+      <div class="input-group"><label>Character Count</label><input id="num_characters" type="number" value="300"></div>
+      <div class="input-group"><label>Exclamation Marks</label><input id="num_exclamation_marks" type="number" value="1"></div>
+      <div class="input-group"><label>Links Count</label><input id="num_links" type="number" value="0"></div>
+      
+      <div class="section-title">Security & Attachments</div>
+      <div class="input-group"><label>Suspicious Link (0/1)</label><input id="has_suspicious_link" type="number" value="0"></div>
+      <div class="input-group"><label>Attachments Count</label><input id="num_attachments" type="number" value="0"></div>
+      <div class="input-group"><label>Has Attachment (0/1)</label><input id="has_attachment" type="number" value="0"></div>
+      <div class="input-group"><label>Sender Rep. (0-100)</label><input id="sender_reputation_score" type="number" value="80"></div>
+
+      <div class="section-title">Context & Keywords</div>
+      <div class="input-group"><label>Hour (0-23)</label><input id="email_hour" type="number" value="14"></div>
+      <div class="input-group"><label>Day (0-6)</label><input id="email_day_of_week" type="number" value="2"></div>
+      <div class="input-group"><label>Is Weekend (0/1)</label><input id="is_weekend" type="number" value="0"></div>
+      <div class="input-group"><label>Recipients</label><input id="num_recipients" type="number" value="1"></div>
+      <div class="input-group"><label>Money Terms (0/1)</label><input id="contains_money_terms" type="number" value="0"></div>
+      <div class="input-group"><label>Urgency Terms (0/1)</label><input id="contains_urgency_terms" type="number" value="0"></div>
     </div>
 
-    <button onclick="runModel()">Predict Category</button>
-    <div id="outputArea">Ready for analysis...</div>
+    <button onclick="runModel()">Run Analysis</button>
+    <div id="outputArea">Awaiting input...</div>
   </div>
 
 </body>
