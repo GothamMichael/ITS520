@@ -50,8 +50,8 @@ async function runModel() {
         const displayConf = confidence > 99.99 ? 99.99 : confidence;
 
         outputArea.innerHTML = isSpam 
-            ? `<div style="color: #d93025;"><strong>🚨 SPAM DETECTED</strong><br>Confidence: ${displayConf.toFixed(2)}%</div>`
-            : `<div style="color: #188038;"><strong>✅ HAM (SAFE)</strong><br>Confidence: ${displayConf.toFixed(2)}%</div>`;
+            ? `<div style="color: #d93025;"><strong>SPAM DETECTED</strong><br>Confidence: ${displayConf.toFixed(2)}%</div>`
+            : `<div style="color: #188038;"><strong>REAL EMAIL DETECTED</strong><br>Confidence: ${displayConf.toFixed(2)}%</div>`;
 
     } catch (e) {
         outputArea.innerHTML = `<span style="color: orange;">Error: ${e.message}</span>`;
