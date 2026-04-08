@@ -3,50 +3,37 @@ async function runModel() {
     outputArea.innerHTML = "Processing...";
 
     try {
-        // 1. Load the model
-        const session = await ort.InferenceSession.create('./spam_dl_model_full.onnx');
+        // 1. Load the model - Using a cache-busting suffix to force reload
+        const modelPath = './spam_dl_model.onnx?v=' + new Date().getTime();
+        const session = await ort.InferenceSession.create(modelPath);
 
-        // 2. Gather inputs from the labeled boxes
-        const emailText = document.getElementById('email_text').value;
+        // 2. Gather inputs
         const numWords = parseFloat(document.getElementById('num_words').value) || 0;
         const numLinks = parseFloat(document.getElementById('num_links').value) || 0;
         const exclamation = parseFloat(document.getElementById('exclamation_marks').value) || 0;
         const specialChars = parseFloat(document.getElementById('special_chars').value) || 0;
 
-        // 3. Pre-processing (Tokenization)
-        // Note: For a true Deep Learning model, 'emailText' needs to be converted 
-        // to a sequence of numbers (tokens). Here is a placeholder for that tensor:
-        const textSequence = tokenize(emailText); // You must define this based on your training
-        const textTensor = new ort.Tensor('int32', Int32Array.from(textSequence), [1, textSequence.length]);
+        // 3. Create the input tensor 
+        // Based on your Python export: input_names=['input']
+        // We create a float32 array of the 4 features
+        const inputData = new Float32Array([numWords, numLinks, exclamation, specialChars]);
+        const inputTensor = new ort.Tensor('float32', inputData, [1, 4]);
 
-        // 4. Create Tensor for the numerical features
-        const metaData = new Float32Array([numWords, numLinks, exclamation, specialChars]);
-        const metaTensor = new ort.Tensor('float32', metaData, [1, 4]);
-
-        // 5. Run inference
-        const feeds = { 
-            "text_input": textTensor, 
-            "meta_input": metaTensor 
-        };
+        // 4. Run inference
+        const feeds = { "input": inputTensor };
         const results = await session.run(feeds);
 
-        // 6. Display Result
+        // 5. Display Result
+        // Use the output name from your Python script: output_names=['output']
         const prediction = results.output.data[0];
         const isSpam = prediction > 0.5;
         
         outputArea.innerHTML = isSpam 
-            ? `<span style="color: red;">🚨 SPAM DETECTED (${(prediction * 100).toFixed(2)}%)</span>`
-            : `<span style="color: green;">✅ HAM / SAFE (${((1 - prediction) * 100).toFixed(2)}%)</span>`;
+            ? `<span style="color: #d93025; font-size: 24px;">🚨 SPAM DETECTED</span><br>Probability: ${(prediction * 100).toFixed(2)}%`
+            : `<span style="color: #188038; font-size: 24px;">✅ HAM / SAFE</span><br>Probability: ${(prediction * 100).toFixed(2)}%`;
 
     } catch (e) {
         outputArea.innerHTML = `<span style="color: orange;">Error: ${e.message}</span>`;
-        console.error(e);
+        console.error("Full Error Object:", e);
     }
-}
-
-// Simple placeholder for tokenization - this must match your model's vocabulary!
-function tokenize(text) {
-    // This is a dummy example. In a real scenario, you would map words to 
-    // the specific integers used during your Python training.
-    return text.toLowerCase().split(' ').map(word => word.length).slice(0, 50); 
 }
