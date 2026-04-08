@@ -20,7 +20,13 @@ async function runModel() {
         ];
 
         const featureValues = featureOrder.map(id => {
-            return parseFloat(document.getElementById(id).value) || 0;
+            let val = parseFloat(document.getElementById(id).value) || 0;
+            
+            if (id === 'sender_reputation_score') {
+                val = val / 100;
+            }
+            
+            return val;
         });
 
         const inputTensor = new ort.Tensor('float32', new Float32Array(featureValues), [1, 14]);
