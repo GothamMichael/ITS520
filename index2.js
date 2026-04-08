@@ -4,7 +4,7 @@ async function runModel() {
 
     try {
         const ts = new Date().getTime();
-        const modelUrl = `./dl_model.onnx?v=${ts}`; // Verified filename from your export
+        const modelUrl = `./spam_dl_model.onnx?v=${ts}`; // Verified filename from your export
         
         const session = await ort.InferenceSession.create(modelUrl, {
             executionProviders: ['wasm']
