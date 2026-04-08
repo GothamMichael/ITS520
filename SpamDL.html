@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My ONNX Model Runner</title>
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+  <script src="index.js" defer></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f8fa;
+      margin: 0;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      color: #2a4d69;
+    }
+    .container {
+      background: white;
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    select, input, button {
+      margin: 6px 0;
+      padding: 6px;
+      font-size: 14px;
+    }
+    button {
+      background-color: #2a4d69;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d3557;
+    }
+    #outputArea {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f4f8;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      white-space: pre-wrap;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table td {
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Run My ONNX Models in Browser</h1>
+  <div class="container">
+    <label><b>Select Model:</b></label><br>
+    <select id="modelSelect">
+      <option value="EnergyRegressionModel_LinRegNet.onnx">EnergyRegressionModel_LinRegNet</option>
+      <option value="EnergyRegressionModelMLP.onnx">EnergyRegressionModelMLP</option>
+      <option value="EnergyRegressionModelDL.onnx">EnergyRegressionModelDL</option>
+      <option value="EnergyRegressionModelLPNL.onnx">EnergyRegressionModelLPNL</option>
+      <option value="DigitsClassificationDL.onnx">DigitsClassificationDL</option>
+      <option value="DigitsClassificationMLP.onnx">DigitsClassificationMLP</option>
+    </select>
+    <div id="modelInfo" style="margin-top:10px; color:#333;"></div>
+    <hr>
+
+    <label><b>Input Values (comma-separated):</b></label><br>
+    <input id="inputValues" type="text" value="0.5, 0.7, 0.2" size="50" />
+    <br><br>
+    <button onclick="runModel()">Run Model</button>
+
+    <div id="outputArea">Waiting for model output...</div>
+  </div>
+</body>
+</html>
