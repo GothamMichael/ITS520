@@ -2,84 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My ONNX Model Runner</title>
+  <title>Spam Detection AI (ONNX)</title>
   <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
   <script src="index.js" defer></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f6f8fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
       margin: 0;
       padding: 40px;
     }
     h1 {
       text-align: center;
-      color: #2a4d69;
+      color: #1a3a5f;
     }
     .container {
       background: white;
-      max-width: 700px;
+      max-width: 800px;
       margin: 20px auto;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
-    select, input, button {
-      margin: 6px 0;
-      padding: 6px;
-      font-size: 14px;
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+      color: #444;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 12px;
+      border: 1px solid #ccd0d5;
+      border-radius: 6px;
+      font-size: 15px;
+      resize: vertical;
+      box-sizing: border-box;
     }
     button {
       background-color: #2a4d69;
       color: white;
       border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
+      border-radius: 6px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
+      width: 100%;
+      margin-top: 15px;
+      transition: background 0.2s;
     }
     button:hover {
       background-color: #1d3557;
     }
     #outputArea {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f0f4f8;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      white-space: pre-wrap;
+      margin-top: 25px;
+      padding: 20px;
+      background: #ffffff;
+      border-left: 5px solid #2a4d69;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 18px;
+      text-align: center;
     }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    table td {
-      border: 1px solid #ccc;
-      padding: 4px 8px;
+    .status-badge {
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Run My ONNX Models in Browser</h1>
+
+  <h1>Deep Learning Spam Filter</h1>
+
   <div class="container">
-    <label><b>Select Model:</b></label><br>
-    <select id="modelSelect">
-      <option value="EnergyRegressionModel_LinRegNet.onnx">EnergyRegressionModel_LinRegNet</option>
-      <option value="EnergyRegressionModelMLP.onnx">EnergyRegressionModelMLP</option>
-      <option value="EnergyRegressionModelDL.onnx">EnergyRegressionModelDL</option>
-      <option value="EnergyRegressionModelLPNL.onnx">EnergyRegressionModelLPNL</option>
-      <option value="DigitsClassificationDL.onnx">DigitsClassificationDL</option>
-      <option value="DigitsClassificationMLP.onnx">DigitsClassificationMLP</option>
-      <option value="spam_dl_model.onnx">Spam Detection Deep Learning</option>
-    </select>
-    <div id="modelInfo" style="margin-top:10px; color:#333;"></div>
-    <hr>
+    <label for="emailContent">Paste Email Content:</label>
+    <textarea id="emailContent" placeholder="Enter the email text you want to analyze..."></textarea>
+    
+    <input type="hidden" id="modelSelect" value="spam_dl_model.onnx">
 
-    <label><b>Input Values (comma-separated):</b></label><br>
-    <input id="inputValues" type="text" value="0.5, 0.7, 0.2" size="50" />
-    <br><br>
-    <button onclick="runModel()">Run Model</button>
+    <button onclick="runModel()">Analyze for Spam</button>
 
-    <div id="outputArea">Waiting for model output...</div>
+    <div id="outputArea">Results will appear here...</div>
   </div>
+
 </body>
 </html>
