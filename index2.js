@@ -1,34 +1,20 @@
 async function runModel() {
     const outputArea = document.getElementById('outputArea');
-    outputArea.innerHTML = "Initializing model and weights...";
+    outputArea.innerHTML = "Initializing model...";
 
     try {
-        // 1. Fetch .onnx and .data files with cache-busting
+        // 1. Fetch only the .onnx file with cache-busting
         const ts = new Date().getTime();
-        const [onnxRes, dataRes] = await Promise.all([
-            fetch(`./spam_dl_model.onnx?v=${ts}`),
-            fetch(`./spam_dl_model.onnx.data?v=${ts}`)
-        ]);
-
-        if (!onnxRes.ok || !dataRes.ok) throw new Error("Model files not found on server.");
-
-        const onnxBuffer = await onnxRes.arrayBuffer();
-        const dataBuffer = await dataRes.arrayBuffer();
-
-        // 2. Build the session by manually mounting the data buffer
-        const session = await ort.InferenceSession.create(onnxBuffer, {
-            executionProviders: ['wasm'],
-            externalData: [
-                {
-                    data: new Uint8Array(dataBuffer),
-                    path: 'spam_dl_model.onnx.data' 
-                }
-            ]
+        const modelUrl = `./spam_dl_model.onnx?v=${ts}`;
+        
+        // 2. Create session directly from the URL
+        const session = await ort.InferenceSession.create(modelUrl, {
+            executionProviders: ['wasm']
         });
 
         outputArea.innerHTML = "Model Loaded. Analyzing inputs...";
 
-        // 3. Define the exact order of the 14 features from your training list
+        // 3. Exact order of the 14 features
         const featureOrder = [
             'num_words', 'num_characters', 'num_exclamation_marks', 'num_links',
             'has_suspicious_link', 'num_attachments', 'has_attachment', 
@@ -36,10 +22,9 @@ async function runModel() {
             'is_weekend', 'num_recipients', 'contains_money_terms', 'contains_urgency_terms'
         ];
 
-        // 4. Map HTML values to a Float32Array
+        // 4. Map values
         const featureValues = featureOrder.map(id => {
-            const val = document.getElementById(id).value;
-            return parseFloat(val) || 0;
+            return parseFloat(document.getElementById(id).value) || 0;
         });
 
         // 5. Create Tensor [1, 14]
@@ -47,11 +32,15 @@ async function runModel() {
 
         // 6. Run Inference
         const results = await session.run({ "input": inputTensor });
-        const prediction = results.output.data[0];
+        const outputData = results.output.data; 
+
+        // Calculation: If your model outputs 2 numbers (logits), we convert them to %
+        // If it only outputs 1 number, use: const prob = outputData[0];
+        const prob = Math.exp(outputData[1]) / (Math.exp(outputData[0]) + Math.exp(outputData[1]));
         
         // 7. Display Results
-        const isSpam = prediction > 0.5;
-        const confidence = (isSpam ? prediction : 1 - prediction) * 100;
+        const isSpam = prob > 0.5;
+        const confidence = (isSpam ? prob : 1 - prob) * 100;
 
         outputArea.innerHTML = isSpam 
             ? `<div style="color: #d93025;"><strong>🚨 SPAM DETECTED</strong><br>Confidence: ${confidence.toFixed(2)}%</div>`
