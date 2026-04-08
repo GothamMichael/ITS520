@@ -4,7 +4,7 @@ async function runModel() {
 
     try {
         // 1. Load the model
-        const session = await ort.InferenceSession.create('./spam_dl_model.onnx');
+        const session = await ort.InferenceSession.create('./spam_dl_model_full.onnx');
 
         // 2. Gather inputs from the labeled boxes
         const emailText = document.getElementById('email_text').value;
